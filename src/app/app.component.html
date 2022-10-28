@@ -1,4 +1,5 @@
 <a [routerLink]="['/login']">Login</a>
 <button (click)="checkStatus()">Check Status</button>
 <button (click)="signOut()">Sign Out</button>
+<div>user: {{ user.username }}</div>
 <router-outlet></router-outlet>

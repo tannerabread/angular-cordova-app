@@ -30,6 +30,7 @@ export class AppComponent {
       switch (event) {
         case "parsingCallbackUrl":
           console.log('parsingCallbackUrl', data);
+          this.setUser(data);
           break;
         case 'signIn':
           console.log("signIn event, data:", data);
@@ -41,8 +42,12 @@ export class AppComponent {
         case 'customOAuthState':
           this.setUser(data);
           break;
+        case 'codeFlow':
+          console.log('codeFlow', data);
+          this.setUser(data);
+          break;
         default:
-          console.log("default event");
+          console.log("default event", event);
           break;
       }
     });
@@ -62,12 +67,16 @@ export class AppComponent {
   checkStatus() {
     console.log('checkStatus');
     Auth.currentAuthenticatedUser()
-      .then((user) => console.log('user', user))
+      .then((user) => {
+        console.log('user', user)
+        this.setUser(user);
+      })
       .catch((err) => console.log('err', err));
   }
 
   signOut() {
     console.log('signOut');
     Auth.signOut()
+    this.setUser({username: ''});
   }
 }

@@ -9,6 +9,16 @@
     "test": "ng test"
   },
   "private": true,
+  "cordova": {
+    "plugins": {
+      "cordova-plugini-customurlscheme": {
+        "URL_SCHEME": "commissioning"
+      }
+    },
+    "platforms": [
+      "android"
+    ]
+  },
   "dependencies": {
     "@angular/animations": "^14.2.0",
     "@angular/common": "^14.2.0",

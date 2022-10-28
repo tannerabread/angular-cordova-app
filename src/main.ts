@@ -8,8 +8,9 @@ if (environment.production) {
   enableProdMode();
 }
 
-import { Auth } from 'aws-amplify';
+import { Amplify, Auth } from 'aws-amplify';
 import awsconfig from './aws-exports';
+Amplify.Logger.LOG_LEVEL = 'DEBUG';
 
 console.log("main.ts");
 (<any>window).handleOpenURL = function(redirectUrl: any) {
@@ -18,11 +19,11 @@ console.log("main.ts");
   const params = new URL(redirectUrl).searchParams;
 
   if (params.has('code') && params.has('state')) {
-    const url = `https://app/building?code=${params.get('code')}&state=${params.get('state')}`;
+    const url = `https://app/authenticated-page/?code=${params.get('code')}&state=${params.get('state')}`;
 
     // document.location.href = url;
 
-    (Auth as any)._handleAuthResponse(url);
+    (Auth as any)._handleAuthResponse(redirectUrl) && console.log("handled auth response");
   }
 };
 Auth.configure(awsconfig);
