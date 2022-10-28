@@ -2,6 +2,8 @@
 
 This is a sample app that displays how to use the Amplify Auth library with a federated login in a Cordova app built from an Angular project. It uses 'cordova-plugin-customurlscheme' to navigate from the browser back to the app and send the code/state.
 
+[Related issue](https://github.com/aws-amplify/amplify-js/issues/10301)
+
 
 # Build steps
 ## Create a directory for the full project
