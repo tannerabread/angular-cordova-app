@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
-import { Auth, Hub } from 'aws-amplify';
+import { Amplify, Auth, Hub } from 'aws-amplify';
 import { Globals } from './globals';
+
+// import awsconfig from '../aws-exports';
+// Amplify.configure(awsconfig);
 
 @Component({
   selector: 'app-root',

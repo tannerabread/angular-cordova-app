@@ -11,7 +11,7 @@
   "private": true,
   "cordova": {
     "plugins": {
-      "cordova-plugini-customurlscheme": {
+      "cordova-plugin-customurlscheme": {
         "URL_SCHEME": "commissioning"
       }
     },

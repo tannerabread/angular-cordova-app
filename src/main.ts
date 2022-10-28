@@ -27,7 +27,7 @@ console.log("main.ts");
     (Auth as any)._handleAuthResponse(redirectUrl);
   }
 };
-Auth.configure(awsconfig);
+Amplify.configure(awsconfig);
 
 platformBrowserDynamic().bootstrapModule(AppModule)
   .catch(err => console.error(err));
