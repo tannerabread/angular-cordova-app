@@ -131,3 +131,16 @@ Check Status button pressed (calls set user function, user displayed on screen)
 Note: even with the previous error, the user/login is properly captured by Amplify
 
 ![image](https://user-images.githubusercontent.com/30082936/199231189-ddd47754-4314-4989-80bd-84325f88b89d.png)
+
+
+### Other Notes
+Uncommenting line 24 on `main.ts` causes the app to reload repeatedly until the warning 
+```bash
+[INFO:CONSOLE(1)] "Throttling navigation to prevent the browser from hanging. See https://crbug.com/1038223. Command line switch --disable-ipc-flooding-protection can be used to bypass the protection"
+```
+shows in the console. It then ends with the error
+```bash
+[INFO:CONSOLE(1)] "[ERROR] 08:25.172 OAuth - Error handling auth response. Error: invalid_grant",
+[INFO:CONSOLE(1)] "[DEBUG] 08:25.173 AuthClass - Error in cognito hosted auth response Error: invalid_grant"
+```
+which was found in the original issue #10301

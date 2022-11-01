@@ -21,7 +21,7 @@ console.log("main.ts");
   if (params.has('code') && params.has('state')) {
     // const url = `https://app/authenticated-page/?code=${params.get('code')}&state=${params.get('state')}`;
 
-    // document.location.href = url;
+    // document.location.href = redirectUrl;
 
     console.log("handled auth response");
     (Auth as any)._handleAuthResponse(redirectUrl);
