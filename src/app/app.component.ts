@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { Amplify, Auth, Hub } from 'aws-amplify';
 import { Globals } from './globals';
 
@@ -9,35 +9,38 @@ import { Globals } from './globals';
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
-  providers: [ Globals ]
+  providers: [Globals],
 })
 export class AppComponent {
   title = 'angularApp';
   // user = {};
-  user = {username: ''};
+  user = { username: '' };
 
-  constructor() {
+  constructor(public cd: ChangeDetectorRef) {
     console.log('AppComponent constructor');
     this.hubListen();
   }
 
   private setUser = (user: any) => {
-    console.log('setUser', user);
+    console.log('setUser', JSON.stringify(user));
     this.user = user;
     console.log('this.user', this.user.username);
-  }
+  };
 
-  private hubListen = () => {
+  private hubListen = async () => {
     Hub.listen('auth', ({ payload: { event, data } }) => {
-      console.log('Hub auth: ', { event, data });
+      console.log('Hub auth event: ', event);
+      console.log('Hub auth data: ', data);
       switch (event) {
-        case "parsingCallbackUrl":
-          console.log('parsingCallbackUrl', data);
-          this.setUser(data);
+        case 'parsingCallbackUrl':
+          console.log('parsingCallbackUrl', JSON.stringify(data));
           break;
         case 'signIn':
-          console.log("signIn event, data:", data);
+          console.log('signIn event, data:', data);
           this.setUser(data);
+          break;
+        case 'signIn_failure':
+          console.log('SIGN IN FAILURE');
           break;
         case 'signOut':
           console.log('logged out');
@@ -47,31 +50,37 @@ export class AppComponent {
           break;
         case 'codeFlow':
           console.log('codeFlow', data);
-          this.setUser(data);
+            Auth.currentAuthenticatedUser()
+              .then((currentUser) => this.setUser(currentUser))
+              .catch(() => console.log('Not signed in'));
           break;
         default:
-          console.log("default event", event);
+          console.log('default event', event);
           break;
       }
     });
 
-    Auth.currentAuthenticatedUser()
-      .then(currentUser => this.setUser(currentUser))
-      .catch(() => console.log('Not signed in'));
-  }
+    // Auth.currentAuthenticatedUser()
+    //   .then((currentUser) => this.setUser(currentUser))
+    //   .catch(() => console.log('Not signed in'));
+  };
 
   goFederated() {
+    this.cd.detectChanges();
     console.log('goFederated');
-    Auth.federatedSignIn()
-    .then((user) => console.log('user', user))
-    .catch((err) => console.log('err', err));
+    Auth.federatedSignIn({
+      customState: window.location.pathname,
+      customProvider: 'google',
+    })
+      .then((user) => console.log('user', user))
+      .catch((err) => console.log('err', err));
   }
 
   checkStatus() {
     console.log('checkStatus');
     Auth.currentAuthenticatedUser()
       .then((user) => {
-        console.log('user', user)
+        console.log('user', user);
         this.setUser(user);
       })
       .catch((err) => console.log('err', err));
@@ -79,7 +88,7 @@ export class AppComponent {
 
   signOut() {
     console.log('signOut');
-    Auth.signOut()
-    this.setUser({username: ''});
+    Auth.signOut();
+    this.setUser({ username: '' });
   }
 }

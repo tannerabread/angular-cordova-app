@@ -19,7 +19,7 @@ console.log("main.ts");
   const params = new URL(redirectUrl).searchParams;
 
   if (params.has('code') && params.has('state')) {
-    // const url = `https://app/authenticated-page/?code=${params.get('code')}&state=${params.get('state')}`;
+    // const url = `https://localhost/login?code=${params.get('code')}&state=${params.get('state')}`;
 
     // document.location.href = redirectUrl;
 
