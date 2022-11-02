@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { Amplify, Auth, Hub } from 'aws-amplify';
 import { Globals } from './globals';
 
@@ -16,15 +16,17 @@ export class AppComponent {
   // user = {};
   user = { username: '' };
 
-  constructor(public cd: ChangeDetectorRef) {
+  constructor() {
     console.log('AppComponent constructor');
     this.hubListen();
+    this.getCurrentUser();
   }
 
   private setUser = (user: any) => {
     console.log('setUser', JSON.stringify(user));
     this.user = user;
     console.log('this.user', this.user.username);
+    this.detectChange();
   };
 
   private hubListen = async () => {
@@ -50,28 +52,37 @@ export class AppComponent {
           break;
         case 'codeFlow':
           console.log('codeFlow', data);
-            Auth.currentAuthenticatedUser()
-              .then((currentUser) => this.setUser(currentUser))
-              .catch(() => console.log('Not signed in'));
+          this.getCurrentUser();
           break;
         default:
           console.log('default event', event);
           break;
       }
     });
-
-    // Auth.currentAuthenticatedUser()
-    //   .then((currentUser) => this.setUser(currentUser))
-    //   .catch(() => console.log('Not signed in'));
   };
 
+  getCurrentUser() {
+    console.log('getCurrentUser');
+    Auth.currentAuthenticatedUser()
+      .then((user) => {
+        console.log('user', user);
+        this.setUser(user);
+      })
+      .catch((err) => console.log('err', err));
+  }
+
+  detectChange() {
+    console.log('detectChange');
+    const currentValue = document.getElementById('userDiv')!.innerText;
+    if (currentValue !== this.user.username) {
+      console.log('change detected');
+      document.getElementById('userDiv')!.innerText = `user: ${this.user.username}`;
+    }
+  }
+
   goFederated() {
-    this.cd.detectChanges();
     console.log('goFederated');
-    Auth.federatedSignIn({
-      customState: window.location.pathname,
-      customProvider: 'google',
-    })
+    Auth.federatedSignIn()
       .then((user) => console.log('user', user))
       .catch((err) => console.log('err', err));
   }
