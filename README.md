@@ -95,52 +95,60 @@ Currently, the only way federatedSignIn will set the user is if the `Check Statu
 ### Logs/Flow (Federated)
 #### Startup
 Startup logs with debugger on
-
-![image](https://user-images.githubusercontent.com/30082936/199230731-df417934-a24e-4254-81a3-7616929391a1.png)
-
-Startup screen
-
-![image](https://user-images.githubusercontent.com/30082936/199231898-7d6433b6-8dde-47f1-9d1f-e553db4f7b8d.png)
-
-
-
-#### Federated Login Flow
-Login linked clicked (navigates to login page)
-
-![image](https://user-images.githubusercontent.com/30082936/199232258-305c6d10-c5f6-4410-8d2e-9e0a4b8eeefc.png)
-
-Federated button pressed
-
-![image](https://user-images.githubusercontent.com/30082936/199232310-258c0918-7d59-400b-870f-e1e70f1761f3.png)
-
-logged in through google (redirected back to app but user not filled out)
-
-![image](https://user-images.githubusercontent.com/30082936/199232370-b41cd122-a802-4176-a4da-0393aa728789.png)
-
-Note: error in cognito hosted auth response
-
-![image](https://user-images.githubusercontent.com/30082936/199231093-ef631cd5-a970-467c-87f8-08c9b5eecd4a.png)
-
-
-
-#### Check Status Button
-Check Status button pressed (calls set user function, user displayed on screen)
-
-![image](https://user-images.githubusercontent.com/30082936/199233013-b649e444-5997-4244-9d41-4413caa7aa83.png)
-
-Note: even with the previous error, the user/login is properly captured by Amplify
-
-![image](https://user-images.githubusercontent.com/30082936/199231189-ddd47754-4314-4989-80bd-84325f88b89d.png)
-
-
-### Other Notes
-Uncommenting line 24 on `main.ts` causes the app to reload repeatedly until the warning 
 ```bash
-[INFO:CONSOLE(1)] "Throttling navigation to prevent the browser from hanging. See https://crbug.com/1038223. Command line switch --disable-ipc-flooding-protection can be used to bypass the protection"
+[INFO:CONSOLE(1)] "main.ts", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "[DEBUG] 10:41.940 Amplify - amplify config [object Object]", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "[DEBUG] 10:41.941 AuthClass - configure Auth", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "[DEBUG] 10:41.941 Parser - parse config [object Object],to amplifyconfig,[object Object]", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "[DEBUG] 10:41.942 Hub - Dispatching to auth with  [object Object]", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "[DEBUG] 10:41.943 Hub - Dispatching to auth with  [object Object]", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "AppComponent constructor", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "getCurrentUser", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "[DEBUG] 10:41.954 AuthClass - getting current authenticated user", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "[DEBUG] 10:41.970 AuthClass - get current authenticated userpool user", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "[DEBUG] 10:41.974 AuthClass - Failed to get user from user pool", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "[DEBUG] 10:41.975 AuthClass - The user is not authenticated by the error No current user", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "err The user is not authenticated", source: https://localhost/main.a4c36dc0014de841.js (1)
 ```
-shows in the console. It then ends with the error
+
+
+Login link clicked, Federated button pressed, Continue with Google pressed
 ```bash
-[INFO:CONSOLE(1)] "[ERROR] 08:25.172 OAuth - Error handling auth response. Error: invalid_grant",
-[INFO:CONSOLE(1)] "[DEBUG] 08:25.173 AuthClass - Error in cognito hosted auth response Error: invalid_grant"
+[INFO:CONSOLE(1)] "redirected url commissioning://authenticated-page/?code=56b7af76-e1ed-4a6d-aad4-61fd0f094afc&state=4I48gm5wMfOzMODncIrwrR9aiGapsj4n", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "handled auth response", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "[DEBUG] 13:15.961 Hub - Dispatching to auth with  [object Object]", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "[DEBUG] 13:15.961 Hub - Dispatching to auth with  [object Object]", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "Hub auth event:  parsingCallbackUrl", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "Hub auth data:  [object Object]", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "parsingCallbackUrl {"url":"commissioning://authenticated-page/?code=56b7af76-e1ed-4a6d-aad4-61fd0f094afc&state=4I48gm5wMfOzMODncIrwrR9aiGapsj4n"}", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "[DEBUG] 13:15.963 OAuth - Starting code flow with commissioning://authenticated-page/?code=56b7af76-e1ed-4a6d-aad4-61fd0f094afc&state=4I48gm5wMfOzMODncIrwrR9aiGapsj4n", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "[DEBUG] 13:15.963 Hub - Dispatching to auth with  [object Object]", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "[DEBUG] 13:15.964 Hub - Dispatching to auth with  [object Object]", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "Hub auth event:  codeFlow", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "Hub auth data:  [object Object]", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "codeFlow [object Object]", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "getCurrentUser", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "[DEBUG] 13:15.964 AuthClass - getting current authenticated user", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "[DEBUG] 13:15.964 OAuth - Calling token endpoint: https://newangularappb3668fa8-b3668fa8-dev.auth.us-east-1.amazoncognito.com/oauth2/token with [object Object]", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "[DEBUG] 13:15.965 AuthClass - get current authenticated userpool user", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "[DEBUG] 13:15.965 AuthClass - OAuth signIn in progress, waiting for resolution...", source: https://localhost/main.a4c36dc0014de841.js (1)
+Unable to open '/data/app/~~XavysfJqmog16aS461oNcA==/io.cordova.hellocordova-L71veqwwjZVtRsYnzX8c4g==/base.dm': No such file or directory
+GoogleInputMethodService.onStartInput():1903 onStartInput(EditorInfo{inputType=0x0(NULL) imeOptions=0x12000000 privateImeOptions=null actionName=UNSPECIFIED actionLabel=null actionId=0 initialSelStart=-1 initialSelEnd=-1 initialCapsMode=0x0 hintText=null label=null packageName=io.cordova.hellocordova fieldId=100 fieldName=null extras=null}, false)
+[INFO:CONSOLE(1)] "[DEBUG] 13:16.436 Credentials - set credentials from session", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "[DEBUG] 13:16.931 Credentials - Load credentials successfully [object Object]", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "[DEBUG] 13:16.932 AuthClass - AWS credentials [object Object]", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "[DEBUG] 13:16.933 AuthClass - Error in cognito hosted auth response [object DOMException]", source: https://localhost/main.a4c36dc0014de841.js (1)
 ```
-which was found in the original issue #10301
+"Fails" with last line about cognito hosted auth response
+
+
+Wait a couple of seconds and the following shows up
+```bash
+[INFO:CONSOLE(1)] "[DEBUG] 13:25.971 AuthClass - OAuth signIn in progress timeout", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "user [object Object]", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "setUser {"username":"google_116877351873073868879","pool":{"userPoolId":"us-east-1_f1spVqN2X","clientId":"<client_id>","client":{"endpoint":"https://cognito-idp.us-east-1.amazonaws.com/","fetchOptions":{}},"advancedSecurityDataCollectionFlag":true,"storage":{"amplify-redirected-from-hosted-ui":"true","CognitoIdentityServiceProvider.4m1oj9493jh31d7booat6tdjb3.LastAuthUser":"google_116877351873073868879","CognitoIdentityServiceProvider.4m1oj9493jh31d7booat6tdjb3.google_116877351873073868879.refreshToken":"<long_refresh_token>"
+2022-11-01 20:13:26.345 26267-26267 chromium                io.cordova.hellocordova              I  
+[INFO:CONSOLE(1)] "this.user google_116877351873073868879", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "detectChange", source: https://localhost/main.a4c36dc0014de841.js (1)
+[INFO:CONSOLE(1)] "change detected", source: https://localhost/main.a4c36dc0014de841.js (1)
+```
