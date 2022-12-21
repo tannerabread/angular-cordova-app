@@ -15,7 +15,7 @@ export class LoginComponent implements OnInit {
 
   signIn() {
     console.log('signIn');
-    Auth.signIn('bannonta@amazon.com', 'password2')
+    Auth.signIn('tannerabreadtest@gmail.com', 'password')
     .then((user) => console.log('user', user))
     .catch((err) => console.log('err', err));
   }
