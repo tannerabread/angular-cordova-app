@@ -1,11 +1,125 @@
 # Angular - Cordova - Amplify - Android
 
-This is a sample app that displays how to use the Amplify Auth library with a federated login in a Cordova app built from an Angular project. It uses 'cordova-plugin-customurlscheme' to navigate from the browser back to the app and send the code/state.
+This is a sample repo used to find a solution for the below issue. There are instructions after the overview and analysis for setting up this repo with `cordova-plugin-customurlscheme` that can be modified to adapt to `cordova-plugin-inappbrowser` with a small amount of configuration. Currently, I have not left instructions on how to do the latter but the main command line steps would still be relevant.
 
 [Related issue](https://github.com/aws-amplify/amplify-js/issues/10301)
 
+# Overview
 
-# Build steps
+There are 2 main paths tried throughout this process, both involving a cordova plugin which seem to have limitations/compatibility issues with the amplify library. The first one is through a Custom URL Scheme and using the private method `_handleAuthResponse`. The second is through an inappbrowser and the successful construction of a `urlOpener` that can be passed to `Amplify.configure`
+
+## Custom URL Scheme
+The first attempt was using `cordova-plugin-customurlscheme` which has a detailed reproduction setup below. This method uses the private amplify method `_handleAuthResponse` to try to manually start the auth flow when the customurlscheme returns the URL with the code/state.
+
+The implementation is fairly simple and along with the `_handleAuthResponse` method also relies on the supplied `handleOpenURL` method supplied by the plugin in `main.ts`:
+```js
+(<any>window).handleOpenURL = function(redirectUrl: any) {
+  const params = new URL(redirectUrl).searchParams;
+
+  if (params.has('code') && params.has('state')) {
+    console.log("handled auth response");
+    (Auth as any)._handleAuthResponse(redirectUrl);
+  }
+};
+```
+Additionally, in `app.component.ts` the Hub listener needs to be called in the constructor as an async function:
+```js
+export class AppComponent {
+  // ...
+  constructor() {
+    this.hubListen();
+    // ...
+  }
+
+  // ...
+
+  private hubListen = async () => {
+    Hub.listen('auth', ({ payload: { event, data } }) => {
+      console.log('Hub auth event: ', event);
+      console.log('Hub auth data: ', data);
+      switch (event) {
+        case 'parsingCallbackUrl':
+          console.log('parsingCallbackUrl', JSON.stringify(data));
+          break;
+        case 'signIn':
+          console.log('signIn event, data:', data);
+          this.setUser(data);
+          break;
+        case 'signIn_failure':
+          console.log('SIGN IN FAILURE');
+          break;
+        case 'signOut':
+          console.log('logged out');
+          break;
+        case 'customOAuthState':
+          this.setUser(data);
+          break;
+        case 'codeFlow':
+          console.log('codeFlow', data);
+          this.getCurrentUser();
+          break;
+        default:
+          console.log('default event', event);
+          break;
+      }
+    });
+  };
+
+  // ...
+}
+```
+Calling `Auth.currentAuthenticatedUser()` from within this async Hub listener seemed to solve the problem and correctly log in the user, but the auth events are not fired as they should be. 
+
+Through debugging this method, the problem looks to be coming in during the method `_handleAuthResponse` when the library tries to replace the window history state [here](https://github.com/aws-amplify/amplify-js/blob/fb85783a034a95b167fa15b305369f3224b05300/packages/auth/src/Auth.ts#L2503). Therefore, the redirect to the desired `redirectSignIn` never happens, noted in [this comment](https://github.com/aws-amplify/amplify-js/issues/10301#issuecomment-1305674316). 
+
+The last event that is shown from the Hub 'auth' listener is `codeFlow`, before the library throws [this error](https://github.com/aws-amplify/amplify-js/blob/fb85783a034a95b167fa15b305369f3224b05300/packages/auth/src/Auth.ts#L2535) from failing the replace on the history state above. This error bypasses the calls to the `signIn` and `cognitoHostedUI` 'auth' Hub listener events. It then fails to replace the window history state again in the catch block [here](https://github.com/aws-amplify/amplify-js/blob/fb85783a034a95b167fa15b305369f3224b05300/packages/auth/src/Auth.ts#L2539), so does not call the `signIn_failure`, `cognitoHostedUI_failure`, or `customState_failure` events in the 'auth' Hub listener.
+
+This method of handling federated signIn in a cordova app is not advised because it uses the private method `_handleAuthResponse`. Additionally, the presence of a custom URL breaks the window state replacement and in turn also the auth flow for the amplify library.
+
+## In App Browser
+After some discussions internally through the Amplify team, a custom `urlOpener` utilizing an `inAppBrowser` that could be passed to the `Amplify.configure` method emerged as the preferred route to solving this issue. This is similar to the solution we already use for React Native (both CLI and Expo flavors), as seen [here](https://docs.amplify.aws/lib/auth/social/q/platform/react-native/#full-samples:~:text=app%20browser%20available.-,Sample,-1).
+
+Current implementations have led to failure as cordova doesn't have the `Linking` method like React Native does and we can't return `Linking.openUrl` from the `urlOpener`. The `cordova-plugin-inappbrowser` makes it easy enough to do the browser portion of the login flow with an implementation like the following:
+```js
+async function urlOpener(url: string, redirectUrl: string) {
+  const ref = (window as any).cordova.InAppBrowser.open(
+    url,
+    '_blank',
+    'location=yes'
+  );
+
+  let newUrl = '';
+  const mycallback = async function (event: any) {
+    newUrl = event.url;
+    // Only resolve promise if URL contains 'code' and 'state'
+    // but not 'redirect_uri'
+    if (
+      newUrl.includes('code') &&
+      newUrl.includes('state') &&
+      !newUrl.includes('redirect_uri')
+    ) {
+      console.log('success');
+      // close the inappbrowser 'ref' then return the url to be
+      // used in Amplify.configure
+      ref.close();
+      return Promise.resolve(newUrl);
+    } else {
+      console.log('error');
+      return Promise.reject('error');
+    }
+  };
+  ref.addEventListener('loadstop', mycallback);
+}
+```
+The problem with the above is that if the `ref.close()` method is called before the Promise is resolved, it does not seem to return the promise. If those two lines are swapped, then `ref.close()` will never be reached and the app will remain in a state with the inappbrowser open.
+
+### Considerations for urlOpener
+The default `urlOpener` returns a Promise that resolves to a `windowProxy` as [seen here](https://github.com/aws-amplify/amplify-js/blob/e1b0b5be3e8ccb3c76e8e2e2f43f910d40d73254/packages/auth/src/OAuth/urlOpener.ts). I haven't been able to successfully return the same type as a windowProxy to get this to work and from all investigations it seems the urlOpener only wants a [Promise\<any>](https://github.com/aws-amplify/amplify-js/blob/e1b0b5be3e8ccb3c76e8e2e2f43f910d40d73254/packages/auth/src/types/Auth.ts#L130) returned.
+
+## Final thoughts
+It seems the key to solving this problem would be to use the `urlOpener` method and return something like the `windowProxy` resolved promise and at the same time close the inappbrowser.
+
+# Set up for this repo using `cordova-plugin-customurlscheme`
 ## Create a directory for the full project
 The directory should be home to the angular app (this repo) and the cordova app that we will build from the angular app.
 ```bash
