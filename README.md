@@ -119,6 +119,8 @@ The default `urlOpener` returns a Promise that resolves to a `windowProxy` as [s
 ## Final thoughts
 It seems the key to solving this problem would be to use the `urlOpener` method and return something like the `windowProxy` resolved promise and at the same time close the inappbrowser.
 
+Another hacky solution would be to somehow combine the 2 plugins to work together.
+
 # Set up for this repo using `cordova-plugin-customurlscheme`
 ## Create a directory for the full project
 The directory should be home to the angular app (this repo) and the cordova app that we will build from the angular app.
